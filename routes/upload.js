@@ -7,6 +7,7 @@ const path = require('path');
 const { readCSV } = require('../services/csvService');
 const { runOCR } = require('../services/ocrService');
 const { matchMedicines } = require('../services/medicineMatcher');
+const fs = require("fs");
 // ==============================
 // Mock OCR (من CSV)
 // ==============================
@@ -51,6 +52,10 @@ router.post('/', upload.single('image'), async (req, res) => {
             await matchMedicines(extractedText);
             console.log("MATCHED:");
             console.log(medicines);
+            
+        if (fs.existsSync(req.file.path)) {
+             fs.unlinkSync(req.file.path);
+}
 
 
         if (!medicines.length) {

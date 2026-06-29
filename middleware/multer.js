@@ -11,14 +11,29 @@ const storage = multer.diskStorage({
         cb(null, unique + path.extname(file.originalname));
     }
 });
-
+const allowedTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png"
+];
 // فلتر للصور فقط
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-        cb(null, true);
-    } else {
-        cb(new Error("Only images allowed"), false);
-    }
-};
+  const fileFilter = (req, file, cb) => {
 
-module.exports = multer({ storage, fileFilter });
+    if (allowedTypes.includes(file.mimetype)) {
+
+        cb(null, true);
+
+    } else {
+
+        cb(new Error("Only JPG, JPEG and PNG images are allowed."), false);
+
+    }
+  };
+
+module.exports = multer({
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024
+    }
+});
