@@ -45,13 +45,23 @@ router.post('/', upload.single('image'), async (req, res) => {
         // ✅ تشغيل الفنكشن صح
         const extractedText =
         await runOCR(req.file.path);
-        console.log("OCR RESULT:");
-        console.log(extractedText);
+        // console.log("OCR RESULT:");
+        // console.log(extractedText);
+         console.log("================================");
+         console.log("Upload Started");
+         console.log("Image:", req.file.filename);
+         console.log("================================");
+
+         console.log("Running EasyOCR...");
+         console.log("EasyOCR Completed");
 
         const medicines =
             await matchMedicines(extractedText);
-            console.log("MATCHED:");
-            console.log(medicines);
+            console.log(`Medicines Found: ${medicines.length}`);
+            console.log("Matched Medicines:");
+            medicines.forEach((m, index) => {
+                console.log(`${index + 1}. ${m.drug_name}`);
+            });
             
         // if (fs.existsSync(req.file.path)) {
         //      fs.unlinkSync(req.file.path);
@@ -111,17 +121,20 @@ router.post('/', upload.single('image'), async (req, res) => {
         // ==============================
         // Save to DB
         // ==============================
-        console.log("GENERATED DOSES:");
-        console.log(allDoses.length);
+        console.log(`Generated Doses: ${allDoses.length}`);
+        console.log("Saving doses...");
         
         const savedDoses = await Dose.insertMany(allDoses);
+
+        console.log("Upload Completed Successfully");
+        console.log("================================");
 
         res.status(200).json({
             message : "Image uploaded successfully",
             medicinesFound : medicines.length,
             medicines :medicines.map(m => m.drug_name),
-            //file : req.file.filename,
             totalGeneratedDoses : savedDoses.length
+             //file : req.file.filename,
           });
 
     
