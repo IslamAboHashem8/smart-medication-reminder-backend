@@ -11,7 +11,6 @@ async function matchMedicines(texts) {
 
     texts.forEach(text => {
 
-        // const cleanText = text.toLowerCase().trim();
         const cleanText = text
            .toLowerCase()
            .replace(/_/g, ' ')
@@ -19,8 +18,6 @@ async function matchMedicines(texts) {
 
         const match = medicines.find(item => {
 
-            // const drugName =
-            //     item.drug_name.toLowerCase();
             const drugName =
                 item.drug_name
                     .toLowerCase()

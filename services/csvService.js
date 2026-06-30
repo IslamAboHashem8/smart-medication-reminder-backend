@@ -1,15 +1,28 @@
-const fs = require('fs');
-const csv = require('csv-parser');
+const fs = require("fs");
+const path = require("path");
+const csv = require("csv-parser");
 
-function readCSV(filePath) {
-    return new Promise((resolve, reject) => {
-        const results = [];
-        fs.createReadStream(filePath)
-            .pipe(csv())
-            .on('data', (data) => results.push(data))
-            .on('end', () => resolve(results))
-            .on('error', reject);
-    });
+let medicinesCache = null;
+
+function readCSV(csvPath) {
+  return new Promise((resolve, reject) => {
+
+    if (medicinesCache) {
+      return resolve(medicinesCache);
+    }
+
+    const results = [];
+
+    fs.createReadStream(csvPath)
+      .pipe(csv())
+      .on("data", (row) => results.push(row))
+      .on("end", () => {
+        medicinesCache = results;
+        console.log(`Medicine cache loaded: ${results.length} medicines`);
+        resolve(medicinesCache);
+      })
+      .on("error", reject);
+  });
 }
 
 module.exports = { readCSV };

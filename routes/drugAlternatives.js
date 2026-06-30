@@ -12,9 +12,16 @@ router.get('/:medicineName', async (req, res) => {
         );
 
         const result = alternatives
-            .filter(item => item.drug_name.toLowerCase() === medicineName)
-            .map(item => item.Alternative_Name);
+        .filter(item =>
+        item.drug_name &&
+        item.drug_name.toLowerCase().trim() === medicineName.trim() &&
+        item.Alternative_Name &&
+        item.Alternative_Name.trim() !== ""
+    )
+    .map(item => item.Alternative_Name.trim());
 
+
+    
         if (!result.length) {
             return res.status(404).json({ message: 'No alternatives found' });
         }
