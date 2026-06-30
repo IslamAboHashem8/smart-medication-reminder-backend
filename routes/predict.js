@@ -1,14 +1,3 @@
-// const express = require('express');
-// const router = express.Router();
-// const { predictForget } =require('../services/predictionservice');
-// router.post('/', (req, res) => {
-//   const { userId, doseTime } = req.body;
-//   const result = predictForget(userId, doseTime);
-
-//   res.json(result);
-// });
-
-// module.exports = router;
 const express = require('express');
 const router = express.Router();
 const { predictForget } = require('../services/predictionservice');
