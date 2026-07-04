@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Dose = require("../models/doses");
+const authMiddleware = require('../middleware/auth');
 
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const userId = req.query.userId;
-    const filter = userId ? { userId } : {};
+    const filter = { userId: req.user._id };
 
     const [totalDoses, takenDoses, lateDoses, missedDoses] = await Promise.all([
       Dose.countDocuments(filter),
@@ -30,7 +30,6 @@ router.get("/", async (req, res) => {
         ? "Moderate adherence ⚠️"
         : "Poor adherence ❌"
     });
-
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

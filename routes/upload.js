@@ -1,18 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Dose = require('../models/doses');
-const mongoose = require('mongoose');
 const upload = require('../middleware/multer');
+const authMiddleware = require('../middleware/auth');
 const { runOCR } = require('../services/ocrService');
 const { matchMedicines } = require('../services/medicineMatcher');
 
-// userId مؤقت
-const DEMO_USER_ID = new mongoose.Types.ObjectId();
-
-// ==============================
-// Upload Route
-// ==============================
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
@@ -23,13 +17,11 @@ router.post('/', upload.single('image'), async (req, res) => {
         console.log("Image:", req.file.filename);
         console.log("================================");
 
-        // بعت الصورة لـ OCR Server على Koyeb
         console.log("Running EasyOCR...");
         const extractedTexts = await runOCR(req.file.path);
         console.log("EasyOCR Completed");
         console.log("Extracted texts:", extractedTexts);
 
-        // طابق الأدوية مع الـ CSV
         const medicines = await matchMedicines(extractedTexts);
         console.log(`Medicines Found: ${medicines.length}`);
         medicines.forEach((m, index) => {
@@ -43,10 +35,8 @@ router.post('/', upload.single('image'), async (req, res) => {
         }
 
         const allDoses = [];
+        const userId = req.user._id;
 
-        // ==============================
-        // Generate doses
-        // ==============================
         medicines.forEach(med => {
             const name = med.drug_name;
             const doses = ['08:00', '20:00'];
@@ -60,7 +50,7 @@ router.post('/', upload.single('image'), async (req, res) => {
                     scheduledAt.setHours(hour, minute, 0, 0);
 
                     allDoses.push({
-                        userId: DEMO_USER_ID,
+                        userId,
                         medicineName: name,
                         scheduledAt,
                         taken: false
@@ -69,9 +59,6 @@ router.post('/', upload.single('image'), async (req, res) => {
             }
         });
 
-        // ==============================
-        // Save to DB
-        // ==============================
         console.log(`Generated Doses: ${allDoses.length}`);
         console.log("Saving doses...");
 

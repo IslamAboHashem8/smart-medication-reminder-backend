@@ -1,15 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const Dose = require("../models/doses");
+const authMiddleware = require('../middleware/auth');
 
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
-    const userId = req.query.userId;
-
-    const filter = userId ? { userId } : {};
+    const filter = { userId: req.user._id };
 
     const [doses, totalCount] = await Promise.all([
       Dose.find(filter).sort({ scheduledAt: 1 }).skip(skip).limit(limit),
@@ -25,25 +24,20 @@ router.get("/", async (req, res) => {
         limit
       }
     });
-
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 
-// DELETE — مسح كل الجرعات (للتجربة أو البداية من أول)
-router.delete("/", async (req, res) => {
+router.delete("/", authMiddleware, async (req, res) => {
   try {
-    const userId = req.query.userId;
-    const filter = userId ? { userId } : {};
-
+    const filter = { userId: req.user._id };
     const result = await Dose.deleteMany(filter);
 
     res.json({
       message: "Doses deleted successfully",
       deletedCount: result.deletedCount
     });
-
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

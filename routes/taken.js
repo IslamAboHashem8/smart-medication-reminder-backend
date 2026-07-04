@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Dose = require("../models/doses");
+const authMiddleware = require('../middleware/auth');
 
-router.post("/:doseId", async (req, res) => {
+router.post("/:doseId", authMiddleware, async (req, res) => {
   try {
     const { doseId } = req.params;
 
-    // ✅ تأكد إن الـ ID صح قبل ما تروح للـ DB
     if (!mongoose.isValidObjectId(doseId)) {
       return res.status(400).json({ message: "Invalid dose ID" });
     }
@@ -16,6 +16,11 @@ router.post("/:doseId", async (req, res) => {
 
     if (!dose) {
       return res.status(404).json({ message: "Dose not found" });
+    }
+
+    // تأكد إن الـ dose بتاعت الـ user ده فعلاً
+    if (dose.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     if (dose.taken) {
