@@ -12,9 +12,6 @@ module.exports = function authMiddleware(req, res, next) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 🔍 تشخيص مؤقت
-    console.log('Decoded JWT payload:', JSON.stringify(decoded));
-
     req.user = { _id: decoded.id };
 
     next();
