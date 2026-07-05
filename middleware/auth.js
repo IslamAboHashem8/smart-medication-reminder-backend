@@ -10,10 +10,11 @@ module.exports = function authMiddleware(req, res, next) {
 
     const token = authHeader.split(' ')[1];
 
-    // نفس الـ JWT_SECRET بتاع Backend B
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Backend B بيحط الـ id هنا
+    // 🔍 تشخيص مؤقت
+    console.log('Decoded JWT payload:', JSON.stringify(decoded));
+
     req.user = { _id: decoded.id };
 
     next();
