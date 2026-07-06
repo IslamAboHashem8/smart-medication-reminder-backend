@@ -16,7 +16,7 @@ async function runOCR(imagePath) {
       form,
       {
         headers: form.getHeaders(),
-        timeout: 240000 // دقيقة كاملة لأن الـ OCR بياخد وقت
+        timeout: 360000 // دقيقة كاملة لأن الـ OCR بياخد وقت
       }
     );
 
