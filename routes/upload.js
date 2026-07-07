@@ -67,13 +67,22 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
         console.log("Upload Completed Successfully");
         console.log("================================");
 
-        res.status(200).json({
-            message: "Image uploaded successfully",
-            medicinesFound: medicines.length,
-            medicines: medicines.map(m => m.drug_name),
-            totalGeneratedDoses: savedDoses.length
-        });
+       res.status(200).json({
+        message: "Image uploaded successfully",
+        medicinesFound: medicines.length,
+        medicines: medicines.map(m => ({
+        drug_name: m.drug_name,
+        active_ingredient: m.active_ingredient,
+        uses: m.Uses,
+        side_effects: m.Side_effects,
+        excellent_review: m["Excellent Review %"],
+        average_review: m["Average Review %"],
+        poor_review: m["Poor Review %"]
+    })),
 
+    
+    totalGeneratedDoses: savedDoses.length
+});
     } catch (err) {
         console.error(err);
         res.status(500).json({
